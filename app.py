@@ -35,7 +35,7 @@ from my_utils import load_audio
 from text import cleaned_text_to_sequence
 from text.cleaner import clean_text
 
-device = "cuda"
+device = "cuda" if torch.cuda.is_available() else "cpu"
 tokenizer = AutoTokenizer.from_pretrained(bert_path)
 bert_model = AutoModelForMaskedLM.from_pretrained(bert_path)
 if is_half == True:
