@@ -141,15 +141,15 @@ def get_tts_wav(ref_wav_path, prompt_text, prompt_language, text, text_language)
     print(f"text_language: {text_language}")
 
     if len(prompt_text) > 100 or len(text) > 100:
-        return
+        raise ValueError("Input text is limited to 100 characters.")
     t0 = ttime()
     prompt_text = prompt_text.strip("\n")
     prompt_language, text = prompt_language, text.strip("\n")
     with torch.no_grad():
         wav16k, _ = librosa.load(ref_wav_path, sr=16000)  # 派蒙
         # length of wav16k in sec should be in 60s
-        if len(wav16k) < 16000 * 60:
-            return
+        if len(wav16k) > 16000 * 60:
+            raise ValueError("Input audio is limited to 60 seconds.")
         wav16k = wav16k[: int(hps.data.sampling_rate * max_sec)]
         wav16k = torch.from_numpy(wav16k)
         if is_half == True:
