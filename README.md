@@ -1,6 +1,6 @@
 ---
-title: Gpt Sovits Demo
-emoji: 🚀
+title: GPT-SoVITS Zero-shot TTS Demo
+emoji: 🚀🚀🚀
 colorFrom: blue
 colorTo: gray
 sdk: gradio
@@ -10,4 +10,6 @@ pinned: false
 license: mit
 ---
 
-Check out the configuration reference at https://huggingface.co/docs/hub/spaces-config-reference
+Original:
+
+https://github.com/RVC-Boss/GPT-SoVITS

@@ -1,0 +1,11 @@
+gradio
+transformers
+librosa
+pytorch-lightning
+einops
+ffmpeg-python
+cn2an
+pypinyin
+jieba
+pyopenjtalk-prebuilt
+g2p_en
