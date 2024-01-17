@@ -137,7 +137,8 @@ dict_language = {"Chinese": "zh", "English": "en", "Japanese": "ja"}
 
 
 def get_tts_wav(ref_wav_path, prompt_text, prompt_language, text, text_language):
-    print(f"---{datetime.datetime.now()}---")
+    start_time = datetime.datetime.now()
+    print(f"---START---{start_time}---")
     print(f"ref_wav_path: {ref_wav_path}")
     print(f"prompt_text: {prompt_text}")
     print(f"prompt_language: {prompt_language}")
@@ -234,13 +235,19 @@ def get_tts_wav(ref_wav_path, prompt_text, prompt_language, text, text_language)
         audio_opt.append(audio)
         audio_opt.append(zero_wav)
         t4 = ttime()
-    print("%.3f\t%.3f\t%.3f\t%.3f" % (t1 - t0, t2 - t1, t3 - t2, t4 - t3))
-    return "Success! time: %.3f\t%.3f\t%.3f\t%.3f" % (
-        t1 - t0,
-        t2 - t1,
-        t3 - t2,
-        t4 - t3,
-    ), (hps.data.sampling_rate, (np.concatenate(audio_opt, 0) * 32768).astype(np.int16))
+    end_time = datetime.datetime.now()
+    dur = end_time - start_time
+    print(
+        f"Success! total time: {dur.seconds:.3f} sec,\ndetail time: {t1 - t0:.3f}, {t2 - t1:.3f}, {t3 - t2:.3f}, {t4 - t3:.3f}"
+    )
+    print(f"---END---{end_time}---")
+    return (
+        f"Success! total time: {dur.seconds:.3f} sec,\ndetail time: {t1 - t0:.3f}, {t2 - t1:.3f}, {t3 - t2:.3f}, {t4 - t3:.3f}",
+        (
+            hps.data.sampling_rate,
+            (np.concatenate(audio_opt, 0) * 32768).astype(np.int16),
+        ),
+    )
 
 
 initial_md = """
