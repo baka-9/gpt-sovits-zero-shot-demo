@@ -27,6 +27,7 @@ from feature_extractor import cnhubert
 
 cnhubert.cnhubert_base_path = cnhubert_base_path
 from time import time as ttime
+import datetime
 
 from AR.models.t2s_lightning_module import Text2SemanticLightningModule
 from module.mel_processing import spectrogram_torch
@@ -91,7 +92,7 @@ vq_model = SynthesizerTrn(
     hps.data.filter_length // 2 + 1,
     hps.train.segment_size // hps.data.hop_length,
     n_speakers=hps.data.n_speakers,
-    **hps.model
+    **hps.model,
 )
 if is_half == True:
     vq_model = vq_model.half().to(device)
@@ -132,6 +133,13 @@ dict_language = {"Chinese": "zh", "English": "en", "Japanese": "ja"}
 
 
 def get_tts_wav(ref_wav_path, prompt_text, prompt_language, text, text_language):
+    print(f"---{datetime.datetime.now()}---")
+    print(f"ref_wav_path: {ref_wav_path}")
+    print(f"prompt_text: {prompt_text}")
+    print(f"prompt_language: {prompt_language}")
+    print(f"text: {text}")
+    print(f"text_language: {text_language}")
+
     if len(prompt_text) > 100 or len(text) > 100:
         return
     t0 = ttime()
