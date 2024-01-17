@@ -14,7 +14,6 @@ bert_path = os.environ.get(
 
 if "_CUDA_VISIBLE_DEVICES" in os.environ:
     os.environ["CUDA_VISIBLE_DEVICES"] = os.environ["_CUDA_VISIBLE_DEVICES"]
-is_half = eval(os.environ.get("is_half", "True"))
 
 
 import gradio as gr
@@ -37,6 +36,11 @@ from text import cleaned_text_to_sequence
 from text.cleaner import clean_text
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
+
+is_half = eval(
+    os.environ.get("is_half", "True" if torch.cuda.is_available() else "False")
+)
+
 tokenizer = AutoTokenizer.from_pretrained(bert_path)
 bert_model = AutoModelForMaskedLM.from_pretrained(bert_path)
 if is_half == True:
