@@ -145,7 +145,8 @@ def get_tts_wav(ref_wav_path, prompt_text, prompt_language, text, text_language)
     print(f"text_language: {text_language}")
 
     if len(prompt_text) > 100 or len(text) > 100:
-        raise ValueError("Input text is limited to 100 characters.")
+        print("Input text is limited to 100 characters.")
+        return "Input text is limited to 100 characters.", None
     t0 = ttime()
     prompt_text = prompt_text.strip("\n")
     prompt_language, text = prompt_language, text.strip("\n")
@@ -153,7 +154,8 @@ def get_tts_wav(ref_wav_path, prompt_text, prompt_language, text, text_language)
         wav16k, _ = librosa.load(ref_wav_path, sr=16000)  # 派蒙
         # length of wav16k in sec should be in 60s
         if len(wav16k) > 16000 * 60:
-            raise ValueError("Input audio is limited to 60 seconds.")
+            print("Input audio is limited to 60 seconds.")
+            return "Input audio is limited to 60 seconds.", None
         wav16k = wav16k[: int(hps.data.sampling_rate * max_sec)]
         wav16k = torch.from_numpy(wav16k)
         if is_half == True:
@@ -233,9 +235,12 @@ def get_tts_wav(ref_wav_path, prompt_text, prompt_language, text, text_language)
         audio_opt.append(zero_wav)
         t4 = ttime()
     print("%.3f\t%.3f\t%.3f\t%.3f" % (t1 - t0, t2 - t1, t3 - t2, t4 - t3))
-    yield hps.data.sampling_rate, (np.concatenate(audio_opt, 0) * 32768).astype(
-        np.int16
-    )
+    return "Success! time: %.3f\t%.3f\t%.3f\t%.3f" % (
+        t1 - t0,
+        t2 - t1,
+        t3 - t2,
+        t4 - t3,
+    ), (hps.data.sampling_rate, (np.concatenate(audio_opt, 0) * 32768).astype(np.int16))
 
 
 initial_md = """
@@ -258,30 +263,32 @@ If you do not agree with these terms and conditions, you may not use or referenc
 
 with gr.Blocks(title="GPT-SoVITS Zero-shot TTS Demo") as app:
     gr.Markdown(initial_md)
-    with gr.Group():
-        gr.Markdown(value="*Upload reference audio")
-        with gr.Row():
-            inp_ref = gr.Audio(label="Reference audio", type="filepath")
-            prompt_text = gr.Textbox(label="Transcription of reference audio")
-            prompt_language = gr.Dropdown(
-                label="Language of reference audio",
-                choices=["Chinese", "English", "Japanese"],
-                value="Japanese",
-            )
-        gr.Markdown(value="*Text to synthesize")
-        with gr.Row():
-            text = gr.Textbox(label="Text to synthesize")
-            text_language = gr.Dropdown(
-                label="Language of text",
-                choices=["Chinese", "English", "Japanese"],
-                value="Japanese",
-            )
-            inference_button = gr.Button("Synthesize", variant="primary")
-            output = gr.Audio(label="Result")
-        inference_button.click(
-            get_tts_wav,
-            [inp_ref, prompt_text, prompt_language, text, text_language],
-            [output],
+    gr.Markdown("## Upload reference audio")
+    with gr.Row():
+        inp_ref = gr.Audio(label="Reference audio", type="filepath")
+        prompt_text = gr.Textbox(label="Transcription of reference audio")
+        prompt_language = gr.Dropdown(
+            label="Language of reference audio",
+            choices=["Chinese", "English", "Japanese"],
+            value="Japanese",
         )
+    gr.Markdown("## Text to synthesize")
+    with gr.Row():
+        text = gr.Textbox(label="Text to synthesize")
+        text_language = gr.Dropdown(
+            label="Language of text",
+            choices=["Chinese", "English", "Japanese"],
+            value="Japanese",
+        )
+        inference_button = gr.Button("Synthesize", variant="primary")
+        with gr.Column():
+            info = gr.Textbox(label="Info")
+            output = gr.Audio(label="Result")
+    inference_button.click(
+        get_tts_wav,
+        [inp_ref, prompt_text, prompt_language, text, text_language],
+        [info, output],
+    )
 
+app.queue(max_size=10)
 app.launch(inbrowser=True)
